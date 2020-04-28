@@ -14,7 +14,7 @@ const Deck = require('./lib/Deck');
 // APP & SERVER
 const APP = express();
 const SERVER = http.createServer(APP);
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 const IO = socketio(SERVER, {
 	pingInterval: 10000
 });
