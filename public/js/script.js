@@ -1015,6 +1015,24 @@ function fileNameParse(str) {
 	return str;
 }
 
+
+(function changeBanner() {
+	const BANNER = document.getElementById('BANNER');
+	BANNER.onclick = () => {
+		window.open('https://www.drinkdrankdrunkthegame.com/shop');
+	};
+	let interval = setInterval(() => {
+		if (BANNER.classList.contains('game')) {
+			BANNER.classList.remove('game');
+			BANNER.classList.add('merch');
+		}
+		else {
+			BANNER.classList.remove('merch');
+			BANNER.classList.add('game');
+		}
+	}, 300000);
+})();
+
 // FAKE GAME END
 // document.addEventListener('keypress', e => {
 // 	if (e.code === 'KeyK') {
