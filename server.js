@@ -31,17 +31,20 @@ IO.on('connection', socket => {
 	// CONNECT
 	socket.on('playerJoinReq', ({ room, nickname, avatar, session }) => {
 		let player = new Player(socket.id, room, nickname, avatar, session);
-		if (session) player.recoverData(session);
-		socket.join(player.room);
-		IO.to(player.room).emit('updateRoom', Room.findByCode(player.room));
+		if (player) {
+			if (session) player.recoverData(session);
+			socket.join(player.room);
+			IO.to(player.room).emit('updateRoom', Room.findByCode(player.room));
 
-		if (player.moderator) {
-			if (!ROOMS[player.findRoomIndex()].running) {
-				socket.emit('timerPermits');
-			}	
+			if (player.moderator) {
+				if (!ROOMS[player.findRoomIndex()].running) {
+					socket.emit('timerPermits');
+				}	
+			}
+			if (player.firstMove) socket.emit('firstMove');
+			if (player.turn) socket.emit('turn');
 		}
-		if (player.firstMove) socket.emit('firstMove');
-		if (player.turn) socket.emit('turn');
+		
 	});
 
 	// IMG PRE CACHE
@@ -58,102 +61,133 @@ IO.on('connection', socket => {
 	// TIMER
 	socket.on('timerStartReq', () => {
 		let player = Player.findById(socket.id);
-		let roomIndex = player.findRoomIndex();
-		ROOMS[roomIndex].startTimer(time => {
-			IO.to(player.room).emit('time', time);
-		});
+		if (player) {
+			let roomIndex = player.findRoomIndex();
+			ROOMS[roomIndex].startTimer(time => {
+				IO.to(player.room).emit('time', time);
+			});
+		}
+		
 	});
 
 	// I DRANK
 	socket.on('IDrankReq', () => {
 		let player = Player.findById(socket.id);
-		player.drink();
-		IO.to(player.room).emit('IDrankRes', player);
-		IO.to(player.room).emit('updateRoom', Room.findByCode(player.room));
+		if (player) {
+			player.drink();
+			IO.to(player.room).emit('IDrankRes', player);
+			IO.to(player.room).emit('updateRoom', Room.findByCode(player.room));
+		}
+		
 	});
 
 	// NEXT PLAYER
 	socket.on('nextPlayerReq', () => {
 		let player = Player.findById(socket.id);
-		player.passTurn();
-		let nextPlayer = player.findNextPlayer();
-		IO.to(player.room).emit('updateRoom', Room.findByCode(player.room));
-		IO.to(nextPlayer.id).emit('turn');
+		if (player) {
+			player.passTurn();
+			let nextPlayer = player.findNextPlayer();
+			IO.to(player.room).emit('updateRoom', Room.findByCode(player.room));
+			IO.to(nextPlayer.id).emit('turn');
+		}
+		
 	});
 
 	// CARD REQUEST
 	socket.on('cardReq', () => {
 		let player = Player.findById(socket.id);
-		let card = player.drawCard();
-		socket.emit('cardRes', card);
+		if (player) {
+			let card = player.drawCard();
+			socket.emit('cardRes', card);
+		}
+		
 	});
 
 	// ACTION
 	socket.on('actionReq', card => {
 		let player = Player.findById(socket.id);
-		player.discardAction(card);
-		IO.to(player.room).emit('updateRoom', Room.findByCode(player.room), card);
+		if (player) {
+			player.discardAction(card);
+			IO.to(player.room).emit('updateRoom', Room.findByCode(player.room), card);
+		}
+		
 	});
 
 	// RULE
 	socket.on('ruleReq', card => {
 		let player = Player.findById(socket.id);
-		let ruleDiscarded = player.discardRule(card);
-		if (ruleDiscarded) {
-			IO.to(player.room).emit('updateRoom', Room.findByCode(player.room), card);
+		if (player) {
+			let ruleDiscarded = player.discardRule(card);
+			if (ruleDiscarded) {
+				IO.to(player.room).emit('updateRoom', Room.findByCode(player.room), card);
+			}
+			else {
+				socket.emit('mustReplaceRule', card);
+			}
 		}
-		else {
-			socket.emit('mustReplaceRule', card);
-		}
+		
 	});
 
 	socket.on('ruleReplaceReq', ({num, cardName}) => {
 		let player = Player.findById(socket.id);
-		let card = player.replaceRule(num, cardName);
-		IO.to(player.room).emit('updateRoom', Room.findByCode(player.room), card);
+		if (player) {
+			let card = player.replaceRule(num, cardName);
+			IO.to(player.room).emit('updateRoom', Room.findByCode(player.room), card);
+		}		
 	});
 
 	// STATE
 	socket.on('stateReq', card => {
 		let player = Player.findById(socket.id);
-		player.appendCard(card);
+		if (player) {
+			player.appendCard(card);
 		IO.to(player.room).emit('updateRoom', Room.findByCode(player.room), card);
-		IO.to(player.room).emit('stateResp', {card, player})
+		IO.to(player.room).emit('stateResp', {card, player});
+		}
+		
 	});
 
 	// SPECIAL
 	socket.on('targetsReq', cardName => {
 		let player = Player.findById(socket.id);
-		let card = Room.findCardByName(cardName);
-		response = player.getTargets(card);
-		socket.emit('targetsResp', response);
+		if (player) {
+			let card = Room.findCardByName(cardName);
+			response = player.getTargets(card);
+			socket.emit('targetsResp', response);
+		}
+		
 	});
 
 	// ANARCHY
 	socket.on('anarchyReq', specialCard => {
 		let player = Player.findById(socket.id);
-		player.anarchy(specialCard);
-		IO.to(player.room).emit('updateRoom', Room.findByCode(player.room));
-		IO.to(player.room).emit('specialCardUsed', {
-			playerOrig: player,
-			specialCard
-		});
+		if (player) {
+			player.anarchy(specialCard);
+			IO.to(player.room).emit('updateRoom', Room.findByCode(player.room));
+			IO.to(player.room).emit('specialCardUsed', {
+				playerOrig: player,
+				specialCard
+			});
+		}
+		
 
 	});
 
 	// ABRAKADABRA
 	socket.on('abraKadabra', ({ targPlayerID, targCardName, origCardName, specialName }) => {
 		let player = Player.findById(socket.id);
-		let playerTarg = Player.findById(targPlayerID);
-		let targCard = Room.findCardByName(targCardName);
-		let specCard = Room.findCardByName(specialName);
-		player.abraKadabra(playerTarg, targCard, specCard);
-		IO.to(player.room).emit('specialCardUsed', {
-			playerOrig: player,
-			playerTarg,
-			specialCard: specCard
-		});
-		IO.to(player.room).emit('updateRoom', Room.findByCode(player.room));
+		if (player) {
+			let playerTarg = Player.findById(targPlayerID);
+			let targCard = Room.findCardByName(targCardName);
+			let specCard = Room.findCardByName(specialName);
+			player.abraKadabra(playerTarg, targCard, specCard);
+			IO.to(player.room).emit('specialCardUsed', {
+				playerOrig: player,
+				playerTarg,
+				specialCard: specCard
+			});
+			IO.to(player.room).emit('updateRoom', Room.findByCode(player.room));
+		}	
 	});
 
 	// SWAP
@@ -161,81 +195,92 @@ IO.on('connection', socket => {
 		let player = Player.findById(socket.id);
 		let playerTarg = Player.findById(targPlayerID);
 		let specialCard = Room.findCardByName(specialName);
-		
-		if (playerTarg) {
-			player.swapCard(playerTarg, targCardName, origCardName, specialName);
-			IO.to(player.room).emit('specialCardUsed', {
-				playerOrig: player,
-				playerTarg,
-				specialCard
 
-			});
+		if (player) {
+			if (playerTarg) {
+				player.swapCard(playerTarg, targCardName, origCardName, specialName);
+				IO.to(player.room).emit('specialCardUsed', {
+					playerOrig: player,
+					playerTarg,
+					specialCard
+
+				});
+			}	
+			IO.to(player.room).emit('updateRoom', Room.findByCode(player.room));
 		}	
-		IO.to(player.room).emit('updateRoom', Room.findByCode(player.room));
-		
 	});
 
 	// REMOVE
 	socket.on('remove', ({ targPlayerID, targCardName, origCardName, specialName }) => {
 		let player = Player.findById(socket.id);
-		let playerTarg = Player.findById(targPlayerID);
-		let targCard = Room.findCardByName(targCardName);
-		let specCard = Room.findCardByName(specialName);
-		player.removeCard(playerTarg, targCard, specCard);
-		IO.to(player.room).emit('specialCardUsed', {
-			playerOrig: player,
-			playerTarg,
-			specialCard: specCard
-		});
-		IO.to(player.room).emit('updateRoom', Room.findByCode(player.room));
+		if (player) {
+			let playerTarg = Player.findById(targPlayerID);
+			let targCard = Room.findCardByName(targCardName);
+			let specCard = Room.findCardByName(specialName);
+			player.removeCard(playerTarg, targCard, specCard);
+			IO.to(player.room).emit('specialCardUsed', {
+				playerOrig: player,
+				playerTarg,
+				specialCard: specCard
+			});
+			IO.to(player.room).emit('updateRoom', Room.findByCode(player.room));
+		}
 	});
 
 	// STEAL
 	socket.on('steal', ({ targPlayerID, targCardName, origCardName, specialName }) => {
 		let player = Player.findById(socket.id);
-		let playerTarg = Player.findById(targPlayerID);
-		let targCard = Room.findCardByName(targCardName);
-		let specCard = Room.findCardByName(specialName);
-		player.stealCard(playerTarg, targCard, specCard);
-		IO.to(player.room).emit('specialCardUsed', {
-			playerOrig: player,
-			playerTarg,
-			specialCard: specCard
-		});
-		IO.to(player.room).emit('updateRoom', Room.findByCode(player.room));
+		if (player) {
+			let playerTarg = Player.findById(targPlayerID);
+			let targCard = Room.findCardByName(targCardName);
+			let specCard = Room.findCardByName(specialName);
+			player.stealCard(playerTarg, targCard, specCard);
+			IO.to(player.room).emit('specialCardUsed', {
+				playerOrig: player,
+				playerTarg,
+				specialCard: specCard
+			});
+			IO.to(player.room).emit('updateRoom', Room.findByCode(player.room));
+		}
 	});
 
 	// SHOW
 	socket.on('showReq', specialCard => {
 		let player = Player.findById(socket.id);
-		player.removeSpecialCard(specialCard.name);
-		IO.to(player.room).emit('updateRoom', Room.findByCode(player.room));
-		IO.to(player.room).emit('specialCardUsed', {
-			playerOrig: player,
-			specialCard
-		});
+		if (player) {
+			player.removeSpecialCard(specialCard.name);
+			IO.to(player.room).emit('updateRoom', Room.findByCode(player.room));
+			IO.to(player.room).emit('specialCardUsed', {
+				playerOrig: player,
+				specialCard
+			});
+		}
 	});
 
 	// END GAME
 	socket.on('endGameReq', () => {
 		let roomCode = Player.findById(socket.id).room;
 		let loser = Room.findLoser(roomCode);
-		IO.to(roomCode).emit('endGameResp', loser);
+		if (loser) {
+			IO.to(roomCode).emit('endGameResp', loser);
+		}
+		
 	});
 
 	// SHOW FORFEIT
 	socket.on('forfeitReq', num => {
 		let player = Player.findById(socket.id);
-		let roomIndex = player.findRoomIndex();
-		ROOMS[roomIndex].running = false;
+		if (player) {
+			let roomIndex = player.findRoomIndex();
+			ROOMS[roomIndex].running = false;
 
-		let forfeit = Room.pickRandomForfeit();
-		IO.to(player.room).emit('forfeitResp', {
-			forfeit,
-			num
-		});
-		ROOMS[roomIndex].gameOver();
-
+			let forfeit = Room.pickRandomForfeit();
+			IO.to(player.room).emit('forfeitResp', {
+				forfeit,
+				num
+			});
+			ROOMS[roomIndex].gameOver();
+		}
 	});
 
 	// DISCONNECT
