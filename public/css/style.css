@@ -130,17 +130,19 @@ ol, ul, li {
 	background-image: url('../img/bg.jpg');
 	background-repeat: repeat;
 	padding: 25px;
+	height: 100%;
 }
 
 #APP {
 	width: 100%;
+	height: calc(100% - 75px);
 	position: fixed;
 	top: 0;
 	left: 0;
 	overflow: hidden;
 	display: flex;
 	background-color: rgba(214, 248, 252, .95);
-	padding: 25px;
+	padding: 15px;
 }
 
 #APP * {
@@ -149,6 +151,24 @@ ol, ul, li {
 	    -ms-user-select: none;
 			user-select: none;	
 }
+
+#BANNER {
+	height: 75px;
+	width: 100%;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	z-index: 486;
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-color: #d6f8fc;
+	cursor: pointer;
+}
+
+#BANNER.merch { background-image: url('../img/banner/merch.png') }
+
+#BANNER.game  { background-image: url('../img/banner/game.png')  }
 
 /* LOGO */
 #LOGO {
@@ -209,7 +229,7 @@ ol, ul, li {
 	overflow-y: auto;
 	border-radius: 10px;
 	padding: 15px 0;
-	margin-right: 25px;
+	margin-right: 15px;
 	box-shadow: inset -3px 3px 5px 0px rgba(0,0,0,0.2);
 	position: relative;
 }
@@ -302,7 +322,7 @@ ol, ul, li {
 }
 
 #DESK .bottom {
-	margin-top: 25px;
+	margin-top: 15px;
 	position: relative;
 }
 
@@ -316,8 +336,8 @@ ol, ul, li {
 
 /* CARD */
 .card {
-	height: 290px;
-	width:  188px;
+	height: 280px;
+	width:  185px;
 	border-radius: 10px;
 	box-shadow: -12px -4px 17px -10px rgba(0,0,0,0.41);
 	border: 1px solid rgba(0, 0, 0, .1);
@@ -378,7 +398,7 @@ ol, ul, li {
 /* STACK */
 #STACK {
 	position: relative;
-	width: 235px;
+	width: 225px;
 }
 
 #STACK .card {
@@ -399,8 +419,8 @@ ol, ul, li {
 }
 
 .rule_holder {
-	height: 305px;
-	min-height: 305px;
+	height: 295px;
+	min-height: 295px;
 	width: 203px;
 	border: 2px dashed #f581b3;
 	margin-right: 25px;
@@ -425,9 +445,9 @@ ol, ul, li {
 
 /* TOOLS */
 #TOOLS {
-	position: fixed;
-	right: 25px;
-	top: 25px;
+	position: absolute;
+	right: 15px;
+	top: 15px;
 	z-index: 488; 
 	display: flex;
 	flex-direction: column;
@@ -562,9 +582,9 @@ ol, ul, li {
 
 /* ROOM CODE */
 #ROOMCODE {
-	position: fixed;
-	bottom: 25px;
-	right: 25px;
+	position: absolute;
+	bottom: 15px;
+	right: 15px;
 	color: #fff;
 	width: 200px;
 	background-color: rgba(245, 129, 179, .85);
@@ -589,9 +609,9 @@ ol, ul, li {
 /* I Drank */
 #IDRANK {
 	cursor: pointer;
-	position: fixed;
-	bottom: 90px;
-	right: 25px;
+	position: absolute;
+	bottom: 80px;
+	right: 15px;
 	height: 50px;
 	width: 200px;
 	border-radius: 10px;
@@ -610,12 +630,12 @@ ol, ul, li {
 
 #IDRANK:hover {
 	box-shadow: -4px 6px 0px 0px #935874;
-	bottom: 92px;
+	bottom: 82px;
 }
 
 #IDRANK.clicked {
 	box-shadow: 0px 0px 0px 0px #935874;
-	bottom: 88px;
+	bottom: 78px;
 }
 
 .iDrankMsg {
@@ -641,6 +661,7 @@ ol, ul, li {
 	top: 0;
 	left: 0;
 	width: 100%;
+	height: 100%;
 }
 
 .modal.stateAlert {
@@ -682,6 +703,7 @@ ol, ul, li {
 	top: 0;
 	left: 0;
 	width: 100%;
+	height: 100%;
 	background-position: center;
 	background-size: 600px auto;
 }
@@ -902,7 +924,7 @@ ol, ul, li {
 #PHONEMSG {
 	display: none;
 }
-@media (max-height: 670px) AND (min-width: 1024px) {
+@media (max-height: 700px) AND (min-width: 1024px) {
 	body {
 		font-size: 20px;
 	}
@@ -1086,7 +1108,7 @@ ol, ul, li {
 }
 @media (max-width: 1024px) {
 	#APP {
-		padding: 15px;
+		padding: 10px;
 	}
 
 	#RULE_CARDS {
@@ -1108,18 +1130,28 @@ ol, ul, li {
 	}
 
 	#TOOLS {
-		top: 15px;
-		right: 15px;
+		top: 10px;
+		right: 10px;
 	}
 
 	#ROOMCODE {
-		bottom: 15px;
-		right: 15px;
+		bottom: 10px;
+		right: 10px;
+		width: 190px;
 	}
 
 	#IDRANK {
-		right: 15px;
-		bottom: 80px;
+		width: 190px;
+		right: 10px;
+		bottom: 70px;
+	}
+
+	#IDRANK:hover {
+		bottom: 72px;
+	}
+
+	#IDRANK.clicked {
+		bottom: 68px;
 	}
 }
 
@@ -1128,9 +1160,13 @@ ol, ul, li {
 		font-size: 20px;
 	}
 
+	#APP {
+		height: calc(100% - 40px);
+	}
+
 	#TOOLS {
 		top: auto;
-		bottom: 150px;
+		bottom: 120px;
 	}
 
 	#SIDEBAR {
@@ -1139,6 +1175,10 @@ ol, ul, li {
 
 	#STACK {
 		width: 225px;
+	}
+
+	#BANNER {
+		height: 40px;
 	}
 }
 
@@ -1251,6 +1291,10 @@ ol, ul, li {
 @media (max-width: 414px) {
 	#APP {
 		visibility: hidden;
+	}
+
+	#BANNER {
+		display: none;
 	}
 
 	#PHONEMSG  {

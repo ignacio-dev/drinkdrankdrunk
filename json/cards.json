@@ -1,5 +1,10 @@
 [
 	{
+		"name": "French Girl",
+		"type": "Action",
+		"text": "Everyone has 60 seconds to draw a portrait of the player after them and show it to the group. Fail and drink. The best portrait gets to give 5 drinks!"
+	},
+	{
 		"name": "Call A Mate",
 		"type": "Action",
 		"text": "Drink with whoever youve known the longest."
