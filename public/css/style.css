@@ -1189,6 +1189,7 @@ ol, ul, li {
 
 	#APP {
 		padding: 5px;
+		overflow: auto;
 	}
 
 	#SIDEBAR {
@@ -1234,8 +1235,9 @@ ol, ul, li {
 	}
 
 	.card.bigger {
-		width: 150px;
-		height: 227px;
+		width: 100px;
+		height: 152px;
+		border-radius: 7px;
 	}
 
 	#TOOLS {
