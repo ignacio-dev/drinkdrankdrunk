@@ -7,7 +7,7 @@ window.addEventListener('load', () => {
 		// PRE-CACHE CARDS
 		for (let card of precacher) {
 			let name = fileNameParse(card.name);
-			let src = `../img/cards/${card.type}/${name}-min.jpg?v=1`;
+			let src = `../img/cards/${card.type}/${name}-min.jpg?v=1_3`;
 			let img = new Image();
 			img.src = src;
 		}
