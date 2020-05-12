@@ -7,7 +7,7 @@ window.addEventListener('load', () => {
 		// PRE-CACHE CARDS
 		for (let card of precacher) {
 			let name = fileNameParse(card.name);
-			let src = `../img/cards/${card.type}/${name}-min.jpg?v=1`;
+			let src = `../img/cards/${card.type}/${name}-min.jpg?v=1_3`;
 			let img = new Image();
 			img.src = src;
 		}
@@ -422,9 +422,37 @@ socket.on('timerPermits', () => {
 	TIMER.onclick = () => {
 		TIMER.setAttribute('data-timer-permits', "false");
 		TIMER.onclick = null;
-		socket.emit('timerStartReq');
+		setTimerAlert();
+		//socket.emit('timerStartReq');
+		
 	};
 });
+
+function setTimerAlert() {
+	playerAlert('playerAlert', `
+<div class="group">
+	<h1>Set the timer!</h1>
+	<p>How long would you like to play for?</p>
+</div>
+<div>
+	<button class="button bg-blue shadow"
+			onclick="setTimer(3600)">
+		1 hour
+	</button>
+	<button class="button bg-blue shadow"
+			onclick="setTimer(1800)">
+		30 minutes
+	</button>
+</div>
+`);
+}
+
+function setTimer(seconds) {
+	const TIMER = document.getElementById('TIMER');
+	animate(TIMER, 'flash');
+	socket.emit('timerStartReq', seconds);
+	closeAlert('playerAlert');
+}
 
 socket.on('time', time => {
 	renderTime(time);
